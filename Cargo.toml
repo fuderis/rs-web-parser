@@ -1,0 +1,21 @@
+[package]
+name = "web-parser"
+description = "This website parser library allows asynchronous fetching and extracting data from web pages in multiple formats."
+keywords = ["web", "website", "parser", "parsing"]
+categories = ["development-tools"]
+version = "0.1.0"
+license = "MIT"
+authors = ["Bulat Sh. <t.me/fuderis>"]
+repository = "https://github.com/fuderis/rs-web-parser"
+readme = "README.md"
+edition = "2024"
+
+[dependencies]
+tokio = { version = "1.45.1", features = ["full"] }
+macron = { version = "0.1.6", features = ["derive"] }
+regex = "1.11.1"
+rand = "0.9.1"
+reqwest = "0.12.20"
+scraper = "0.23.1"
+serde = "1.0.219"
+serde_json = "1.0.140"
