@@ -31,6 +31,11 @@ async fn main() -> Result<()> {
     // read website page:
     let mut doc = Document::read("https://example.com/", User::random()).await?;
 
+    // select 'lang' attribute:
+    let html = doc.select("html")?.expect("No elements found");
+    let lang = html.attr("lang").unwrap_or("en");
+    println!("Language: {lang}");
+
     // select title:
     let title = doc.select("h1")?.expect("No elements found");
     println!("Title: '{}'", title.text());
