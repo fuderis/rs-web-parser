@@ -1,11 +1,21 @@
 use macron::{ Display, Error, From };
 
-// Result alias
-pub type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
+/// The std result
+pub type StdResult<T, E> = std::result::Result<T, E>;
+/// The result alias
+pub type Result<T> = StdResult<T, Box<dyn std::error::Error + Send + Sync + 'static>>;
 
-// Parser error
+/// The application error
 #[derive(Debug, Display, Error, From)]
 pub enum Error {
-    #[display = "Error"]
-    Error,
+    #[from]
+    String(String),
+
+    Scraper(String),
+}
+
+impl Error {
+    pub fn from_scraper(e: scraper::error::SelectorErrorKind<'static>) -> Self {
+        Self::Scraper(e.to_string())
+    }
 }

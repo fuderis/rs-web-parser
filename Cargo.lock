@@ -1792,7 +1792,7 @@ dependencies = [
 
 [[package]]
 name = "web-parser"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "macron",
  "rand 0.9.1",

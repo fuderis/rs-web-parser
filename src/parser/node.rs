@@ -19,7 +19,7 @@ impl<'a> Node<'a> {
 
     /// Select HTML node by CSS selector
     pub fn select(&self, selector: &'static str) -> Result<Option<Node<'a>>> {
-        let sel = scraper::Selector::parse(selector)?;
+        let sel = scraper::Selector::parse(selector).map_err(Error::from_scraper)?;
         
         let node = self.element
             .select(&sel)
@@ -31,7 +31,7 @@ impl<'a> Node<'a> {
 
     /// Select HTML nodes by CSS selector
     pub fn select_all(&mut self, selector: &'static str) -> Result<Option<Nodes>> {
-        self.selector = scraper::Selector::parse(selector)?;
+        self.selector = scraper::Selector::parse(selector).map_err(Error::from_scraper)?;
         let mut nodes = self.element.select(&self.selector).peekable();
 
         if nodes.peek().is_some() {
