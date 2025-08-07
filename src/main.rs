@@ -4,11 +4,31 @@ extern crate web_parser;  use web_parser::{ prelude::*, };
 async fn main() -> Result<()> {
     // _____ WEB SEARCH: _____
     
-    let google = GoogleSearch::run().await?;
+    let mut google = GoogleSearch::run("bin/chromedriver/chromedriver.exe").await?;
 
-    let results = google.search("Какая сегодня погода в Ижевске?").await?;
-    dbg!(results);
+    let results = google.search("Топ акций к покупке сегодня").await;
 
+    match results {
+        Ok(results) => {
+            tokio::time::sleep(std::time::Duration::from_millis(500)).await;
+            let mut texts = vec![];
+            let mut count = 0;
+
+            for page in &results[1..] {
+                let doc = page.read().await?;
+                let main = doc.select("body")?.unwrap();
+                
+                texts.push(main.filter_text());
+
+                count += 1;  if count > 2 { break; }
+            }
+
+            dbg!(texts);
+        }
+        Err(e) => eprintln!("Search error: {e}")
+    }
+
+    google.stop().await?;
     
     /*
     // _____ READ PAGE AS HTML DOCUMENT: _____

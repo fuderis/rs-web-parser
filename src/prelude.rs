@@ -7,6 +7,7 @@ pub(crate) use std::collections::HashMap;
 pub(crate) use std::path::{ Path, PathBuf };
 pub(crate) use std::sync::{ Arc, Mutex };
 pub(crate) use tokio::sync::{ Mutex as TokioMutex };
+pub(crate) use tokio::time::{ sleep as sleep2, Duration };
 
 pub(crate) use macron::*;
 pub(crate) use serde::{ Serialize, Deserialize, de::DeserializeOwned };

@@ -13,4 +13,10 @@ pub enum Error {
     String(String),
 
     Scraper(String),
+
+    #[display = "Failed to get search results (may be google API is changed). Report a problem to me: https://t.me/fuderis"]
+    FailedGetResults,
+
+    #[display = "Chromedriver session is broken!"]
+    SessionBroken
 }
