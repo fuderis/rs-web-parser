@@ -7,15 +7,10 @@ pub type Result<T> = StdResult<T, Box<dyn std::error::Error + Send + Sync + 'sta
 
 /// The application error
 #[derive(Debug, Display, Error, From)]
+#[from(scraper::error::SelectorErrorKind<'static>, "Self::Scraper(value.to_string())")]
 pub enum Error {
     #[from]
     String(String),
 
     Scraper(String),
-}
-
-impl Error {
-    pub fn from_scraper(e: scraper::error::SelectorErrorKind<'static>) -> Self {
-        Self::Scraper(e.to_string())
-    }
 }

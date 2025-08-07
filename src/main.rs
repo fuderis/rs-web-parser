@@ -1,7 +1,16 @@
-extern crate web_parser;  use web_parser::{ prelude::*, User, Document };
+extern crate web_parser;  use web_parser::{ prelude::*, };
 
 #[tokio::main]
 async fn main() -> Result<()> {
+    // _____ WEB SEARCH: _____
+    
+    let google = GoogleSearch::run().await?;
+
+    let results = google.search("Какая сегодня погода в Ижевске?").await?;
+    dbg!(results);
+
+    
+    /*
     // _____ READ PAGE AS HTML DOCUMENT: _____
     
     // read website page:
@@ -33,6 +42,7 @@ async fn main() -> Result<()> {
 
     let json: serde_json::Value = Document::json("https://example.com/", User::random()).await?.expect("Failed to parse JSON");
     println!("Json: {json}");
+    */
 
     Ok(())
 }
