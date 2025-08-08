@@ -4,32 +4,55 @@ extern crate web_parser;  use web_parser::{ prelude::*, };
 async fn main() -> Result<()> {
     // _____ WEB SEARCH: _____
     
-    let mut google = GoogleSearch::run("bin/chromedriver/chromedriver.exe").await?;
+    #[cfg(feature = "search")]
+    {
+        // start search engine:
+        let mut google = GoogleSearch::new(
+            Some("bin/chromedriver/chromedriver.exe"),
+            Some(macron::path!("$/WebSearch/Profile1").to_str().unwrap()),
+            false,
+        ).await?;
 
-    let results = google.search("Топ акций к покупке сегодня").await;
+        // send search query:
+        let results = google.search(
+            "weather in new york tomorrow",  // query
+            &["support.google.com", "youtube.com"],  // black list
+            2000  // sleep in millis
+        ).await;
 
-    match results {
-        Ok(results) => {
-            tokio::time::sleep(std::time::Duration::from_millis(500)).await;
-            let mut texts = vec![];
-            let mut count = 0;
+        // handle search results:
+        match results {
+            Ok(results) => {
+                let mut texts = vec![];
 
-            for page in &results[1..] {
-                let doc = page.read().await?;
-                let main = doc.select("body")?.unwrap();
-                
-                texts.push(main.filter_text());
+                for page in &results[..(results.len().clamp(0, 3))] {
+                    let doc = page.read().await?;
+                    let main = doc.select("body")?.unwrap();
+                    
+                    #[derive(Debug)]
+                    #[allow(dead_code)]
+                    struct Result {
+                        url: String,
+                        text: String,
+                    }
+                    
+                    texts.push(Result {
+                        url: page.url.clone(),
+                        text: main.filter_text(
+                            &[ "header", "footer", "style", "script", "noscript", "iframe", "button", "img", "svg" ], // black list
+                        )
+                    });
+                }
 
-                count += 1;  if count > 2 { break; }
+                println!("Search results: {texts:#?}");
             }
-
-            dbg!(texts);
+            Err(e) => eprintln!("Search error: {e}")
         }
-        Err(e) => eprintln!("Search error: {e}")
+
+        // stop search engine:
+        google.stop().await?;
     }
 
-    google.stop().await?;
-    
     /*
     // _____ READ PAGE AS HTML DOCUMENT: _____
     

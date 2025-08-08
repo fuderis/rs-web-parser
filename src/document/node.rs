@@ -1,10 +1,6 @@
 use crate::prelude::*;
 use super::Nodes;
 
-static BLACK_LIST: Lazy<Vec<&'static str>> = Lazy::new(|| vec![
-    "header", "footer", "style", "script", "noscript", "iframe", "button", "a", "img",
-]);
-
 /// The HTML node
 #[derive(Debug, Clone)]
 pub struct Node<'a> {
@@ -68,19 +64,19 @@ impl<'a> Node<'a> {
     }
 
     /// Returns node content from node excluding tags from black list
-    pub fn filter_text(&self) -> String {
-        Self::filter_elem_text(self.element)
+    pub fn filter_text(&self, black_list: &[&str]) -> String {
+        Self::filter_elem_text(self.element, black_list)
             .split_whitespace()
             .collect::<Vec<_>>()
             .join(" ")
     }
 
     /// Returns node content from element excluding tags from black list
-    fn filter_elem_text(node: scraper::element_ref::ElementRef) -> String {
+    fn filter_elem_text(node: scraper::element_ref::ElementRef, black_list: &[&str]) -> String {
         let tag_name = node.value().name();
 
         // filtering by black list:
-        if BLACK_LIST.contains(&tag_name) {
+        if black_list.contains(&tag_name) {
             return String::new();
         }
 
@@ -90,12 +86,13 @@ impl<'a> Node<'a> {
         for child in node.children() {
             match child.value() {
                 scraper::node::Node::Text(text) => {
+                    result.push(' ');
                     result.push_str(text);
                 }
                 scraper::node::Node::Element(_) => {
                     if let Some(child_element) = scraper::ElementRef::wrap(child) {
-                        // Рекурсивно обходим элемент
-                        result.push_str(&Self::filter_elem_text(child_element));
+                        result.push(' ');
+                        result.push_str(&Self::filter_elem_text(child_element, black_list));
                     }
                 }
                 _ => {}

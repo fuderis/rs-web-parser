@@ -1,6 +1,8 @@
 #![allow(unused_imports)]
 
-pub use crate::{ Result, Error, SearchEngine, GoogleSearch, User, Document };
+pub use crate::{ Result, Error, User, Document };
+#[cfg(feature = "search")]
+pub use crate::{ SearchEngine, GoogleSearch, };
 
 pub(crate) use std::format as fmt;
 pub(crate) use std::collections::HashMap;

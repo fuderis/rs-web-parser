@@ -14,8 +14,6 @@ static RAND_USERS: Lazy<(Vec<User>, usize)> = Lazy::new(|| {
         User::EdgeWindows,
         User::EdgeMac,
 
-        User::SafariMac,
-        
         User::OperaWindows,
         User::OperaMac,
         User::OperaLinux,
