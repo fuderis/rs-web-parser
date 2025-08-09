@@ -7,7 +7,7 @@ async fn main() -> Result<()> {
     #[cfg(feature = "search")]
     {
         // start search engine:
-        let mut engine = DuckSearch::new(
+        let mut engine = SearchEngine::<Duck>::new(
             Some("bin/chromedriver/chromedriver.exe"),
             Some(macron::path!("$/WebSearch/Profile1").to_str().unwrap()),
             false,
@@ -17,7 +17,7 @@ async fn main() -> Result<()> {
 
         // send search query:
         let results = engine.search(
-            "program hello world on Rust language",  // query
+            "Rust (programming language)",  // query
             &["support.google.com", "youtube.com"],  // black list
             1000  // sleep in millis
         ).await;

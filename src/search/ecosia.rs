@@ -1,10 +1,10 @@
 use crate::prelude::*;
 use super::{ SearchParams };
 
-/// The 'Wikipedia' search engine
-pub struct Wiki;
+/// The 'Ecosia' search engine
+pub struct Ecosia;
 
-impl SearchParams for Wiki {
+impl SearchParams for Ecosia {
     /// Creates a new instance
     fn new() -> Self {
         Self {}
@@ -12,15 +12,15 @@ impl SearchParams for Wiki {
     
     /// Search engine URL
     fn url(&self) -> String {
-        str!("https://wikipedia.org/w/index.php?search=")
+        str!("https://www.ecosia.org/")
     }
 
     /// Start search script
     fn search(&self, query: &str) -> String {
         str!() + r##"
             try {
-                let form = document.querySelector('body form#search');
-                let input = form.querySelector('input[name="search"]');
+                let form = document.querySelector('form[action="/search"]');
+                let input = form.querySelector('input[data-test-id="search-form-input"]');
 
                 input.focus();
                 input.value = ""## + query + r##"";
@@ -40,21 +40,17 @@ impl SearchParams for Wiki {
     /// Parse results script
     fn parse(&self) -> String {
         str!() + r##"
-            try {
-                let links = [];
+            let links = [];
 
-                document.querySelectorAll('.mw-search-results a[href]').forEach(elem => {
-                    let href = elem.getAttribute("href");
+            document.querySelectorAll('main a[href][data-test-id="result-link"]').forEach(elem => {
+                let href = elem.getAttribute("href");
 
-                    if (href && !href.startsWith("https://")) {
-                        links.push('https://wikipedia.org' + href);
-                    }
-                });
+                if (href && href.startsWith("https://")) {
+                    links.push(href);
+                }
+            });
 
-                return links;
-            } catch {
-                return [];
-            }
+            return links;
         "##
     }
 }

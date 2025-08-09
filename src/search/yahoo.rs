@@ -1,10 +1,10 @@
 use crate::prelude::*;
 use super::{ SearchParams };
 
-/// The 'Google' search engine
-pub struct Google;
+/// The 'Yahoo' search engine
+pub struct Yahoo;
 
-impl SearchParams for Google {
+impl SearchParams for Yahoo {
     /// Creates a new instance
     fn new() -> Self {
         Self {}
@@ -12,14 +12,17 @@ impl SearchParams for Google {
     
     /// Search engine URL
     fn url(&self) -> String {
-        str!("https://www.google.com/")
+        str!("https://www.yahoo.com/")
     }
 
     /// Start search script
     fn search(&self, query: &str) -> String {
         str!() + r##"
             try {
-                let input = document.querySelector('textarea');
+                let form = document.querySelector('header form[role="search"]');
+                let input = form.querySelector('input[autofocus]');
+
+                form.removeAttribute('target');
 
                 input.focus();
                 input.value = ""## + query + r##"";
@@ -27,14 +30,7 @@ impl SearchParams for Google {
                 input.dispatchEvent(new Event('input', { bubbles: true }));
                 input.dispatchEvent(new Event('change', { bubbles: true }));
 
-                input.dispatchEvent(new KeyboardEvent('keydown', {
-                    bubbles: true,
-                    cancelable: true,
-                    key: 'Enter',
-                    code: 'Enter',
-                    charCode: 13,
-                    keyCode: 13
-                }));
+                form.submit();
 
                 return true;
             } catch {
@@ -49,7 +45,7 @@ impl SearchParams for Google {
             try {
                 let links = [];
 
-                document.querySelectorAll('#main *[data-rpos] a[href]').forEach(elem => {
+                document.querySelectorAll('#main #web a[href][referrerpolicy="origin"]').forEach(elem => {
                     let href = elem.getAttribute("href");
 
                     if (href && href.startsWith("https://")) {

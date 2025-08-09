@@ -2,7 +2,7 @@
 
 pub use crate::{ Result, Error, User, Document };
 #[cfg(feature = "search")]
-pub use crate::search::{ SearchEngine, GoogleSearch, BingSearch, DuckSearch, };
+pub use crate::search::{ SearchEngine, Google, Bing, Duck, Ecosia, Yahoo, Wiki, };
 
 pub(crate) use std::format as fmt;
 pub(crate) use std::collections::HashMap;

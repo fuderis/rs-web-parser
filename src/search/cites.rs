@@ -17,12 +17,23 @@ pub struct Cites {
 
 impl Cites {
     /// Creates a new websites list by URL's
-    pub(crate) fn new<S: Into<String>>(tab: Arc<TokioMutex<Tab>>, urls: Vec<S>) -> Self {
+    pub(crate) fn new<S: Into<String>>(tab: Arc<TokioMutex<Tab>>, urls: Vec<S>, black_list: &[&str]) -> Self {
         Self {
             cites: urls.into_iter()
                 .map(|url| Cite::new(tab.clone(), url.into()))
+                .filter(|cite| !Self::in_black_list(&cite.url, black_list))
                 .collect::<Vec<_>>()
         }
+    }
+
+    /// Checks URL in black list
+    fn in_black_list(url: &str, black_list: &[&str]) -> bool {
+        for black in black_list {
+            if url.contains(black) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /// Reads a websites content

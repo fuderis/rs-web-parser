@@ -1,9 +1,9 @@
 [package]
 name = "web-parser"
-description = "This website parser library allows asynchronous fetching and extracting data from web pages in multiple formats."
-keywords = ["web", "website", "parser", "parsing"]
+description = "This website parser library allows asynchronous search, fetching and extracting data from web-pages in multiple formats."
+keywords = ["web", "website", "parser", "parsing", "search"]
 categories = ["development-tools"]
-version = "0.1.1"
+version = "0.1.2"
 license = "MIT"
 authors = ["Bulat Sh. <t.me/fuderis>"]
 repository = "https://github.com/fuderis/rs-web-parser"
@@ -24,4 +24,3 @@ futures = { version = "0.3.31", optional = true }
 
 [features]
 search = ["dep:chromedriver-api", "dep:futures"]
-default = ["search"]

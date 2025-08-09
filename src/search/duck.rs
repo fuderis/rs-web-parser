@@ -1,100 +1,63 @@
 use crate::prelude::*;
-use super::{ SearchEngine, Cites };
-use chromedriver_api::{ Session, Tab };
+use super::{ SearchParams };
 
-const SEARCH_URL: &str = "https://duckduckgo.com/";
+/// The 'Duck' search engine
+pub struct Duck;
 
-/// The bing search engine
-pub struct DuckSearch {
-    session: Arc<TokioMutex<Option<Session>>>,
-    tab: Arc<TokioMutex<Tab>>,
-}
-
-impl SearchEngine for DuckSearch {
-    /// Creates a new search engine session
-    /// * path: path to the chromedriver (None = to use system PATH)
-    /// * profile: path to save Chrome profile cookies (None = to not save cookies)
-    /// * headless: run chromedriver without interface
-    async fn new(path: Option<&str>, profile: Option<&str>, headless: bool) -> Result<Self> {
-        let free_port = std::net::TcpListener::bind("127.0.0.1:0")?.local_addr()?.port().to_string();
-
-        let mut session = Session::run(
-            &free_port,
-            path,
-            profile,
-            headless
-        ).await?;
-        
-        let tab = session.open(SEARCH_URL).await?;
-        
-        Ok(Self {
-            session: Arc::new(TokioMutex::new(Some(session))),
-            tab,
-        })
+impl SearchParams for Duck {
+    /// Creates a new instance
+    fn new() -> Self {
+        Self {}
     }
     
-    /// Search results by query
-    /// * query: a user search query
-    /// * black_list: ignore these sites
-    /// * sleep: waiting time for realism
-    async fn search(&mut self, query: &str, black_list: &[&str], sleep: u64) -> Result<Cites> {
-        let mut tab = self.tab.lock().await;
-        tab.open(SEARCH_URL).await?;
-        
-        let status = tab.inject::<bool>(&(str!() + r#"
-            let form = document.querySelector('main form#searchbox_homepage');
-            let input = form.querySelector('input[aria-autocomplete]');
-            if (!form || !input) { return false; }
+    /// Search engine URL
+    fn url(&self) -> String {
+        str!("https://duckduckgo.com/")
+    }
 
-            input.focus();
-            input.value = ""# + query + r#"";
+    /// Start search script
+    fn search(&self, query: &str) -> String {
+        str!() + r##"
+            try {
+                let form = document.querySelector('main form#searchbox_homepage');
+                let input = form.querySelector('input[aria-autocomplete]');
 
-            input.dispatchEvent(new Event('input', { bubbles: true }));
-            input.dispatchEvent(new Event('change', { bubbles: true }));
+                input.focus();
+                input.value = ""## + query + r##"";
 
-            form.submit();
+                input.dispatchEvent(new Event('input', { bubbles: true }));
+                input.dispatchEvent(new Event('change', { bubbles: true }));
 
-            return true;
-        "#)).await?;
+                form.submit();
 
-        if !status {
-            tab.close().await.ok();
-            return Err(Error::SessionBroken.into());
-        }
+                return true;
+            } catch {
+                return false;
+            }
+        "##
+    }
 
-        sleep2(Duration::from_millis(100 + sleep)).await;
-
-        // get search results:
-        let results = tab.inject::<Vec<String>>(&(str!() + r##"
+    /// Parse results script
+    fn parse(&self) -> String {
+        str!() + r##"
+            try {
                 let links = [];
 
-                document.querySelectorAll("body a[href] p").forEach(elem => {
+                document.querySelectorAll('body a[href] p').forEach(elem => {
                     let href = elem.textContent
                         .replaceAll("&nbsp;", " ")
                         .replaceAll(/\s+›\s+/g, "/")
                         .trim();
 
-                    if (href && href.startsWith("https://")
-                    && !"## + &json::to_string(black_list).unwrap()+ r##".some(site => href.includes(site))) {
+                    if (href && href.startsWith("https://")) {
                         links.push(href);
                     }
                 });
 
                 return links;
-            "##)).await?;
-        
-        // unlock tab:
-        drop(tab);
-
-        Ok(Cites::new(self.tab.clone(), results))
-    }
-
-    /// Closes a search engine session
-    async fn stop(self) -> Result<()> {
-        if let Some(session) = self.session.lock().await.take() {
-            session.close().await?;
-        }
-
-        Ok(())
+            } catch {
+                return [];
+            }
+        "##
     }
 }
