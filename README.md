@@ -19,7 +19,6 @@ This web page parser library allows asynchronous fetching and extracting of data
 
 This tool is well-suited for web scraping and data extraction tasks, offering flexible parsing of HTML, plain text, and JSON to enable comprehensive data gathering from various web sources.
 
-
 ## Examples:
 
 ### Web Search (feature: 'search'):
@@ -62,6 +61,7 @@ async fn main() -> Result<()> {
 
     // stop search engine:
     engine.stop().await?;
+
     Ok(())
 }
 ```
@@ -88,28 +88,23 @@ async fn main() -> Result<()> {
         println!("Description: '{}'", descr.text())
     }
 
-
     // _____ READ PAGE AS PLAIN TEXT: _______
 
     let text: String = Document::text("https://example.com/", User::random()).await?;
     println!("Text: {text}");
 
-
     // _____ READ PAGE AS JSON: ______________
 
     let json: serde_json::Value = Document::json("https://example.com/", User::random()).await?.expect("Failed to parse JSON");
     println!("Json: {json}");
-    
 
     Ok(())
 }
 ```
 
-
 ## Licensing:
 
 Distributed under the MIT license.
-
 
 ## Feedback:
 
