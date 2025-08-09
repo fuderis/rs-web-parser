@@ -7,5 +7,3 @@ pub mod document;   pub use document::{ User, Document, Node, Nodes };
 
 #[cfg(feature = "search")]
 pub mod search;
-#[cfg(feature = "search")]
-pub use search::{ SearchEngine, GoogleSearch };

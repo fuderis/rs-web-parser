@@ -1,5 +1,5 @@
 use crate::{ prelude::*, };
-use super::Page;
+use super::Cites;
 
 /// The search engine alias
 pub type DynSearchEngine = Box<dyn SearchEngine + Send + Sync>;
@@ -16,7 +16,7 @@ pub trait SearchEngine: Sized {
     /// * query: a user search query
     /// * black_list: ignore these sites
     /// * sleep: waiting time for realism
-    fn search(&mut self, query: &str, black_list: &[&str], sleep: u64) -> impl std::future::Future<Output = Result<Vec<Page>>> + Send;
+    fn search(&mut self, query: &str, black_list: &[&str], sleep: u64) -> impl std::future::Future<Output = Result<Cites>> + Send;
 
     /// Stops search engine session
     fn stop(self) -> impl std::future::Future<Output = Result<()>> + Send;

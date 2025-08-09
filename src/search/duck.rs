@@ -2,15 +2,15 @@ use crate::prelude::*;
 use super::{ SearchEngine, Cites };
 use chromedriver_api::{ Session, Tab };
 
-const SEARCH_URL: &str = "https://www.google.com/";
+const SEARCH_URL: &str = "https://duckduckgo.com/";
 
-/// The google search engine
-pub struct GoogleSearch {
+/// The bing search engine
+pub struct DuckSearch {
     session: Arc<TokioMutex<Option<Session>>>,
     tab: Arc<TokioMutex<Tab>>,
 }
 
-impl SearchEngine for GoogleSearch {
+impl SearchEngine for DuckSearch {
     /// Creates a new search engine session
     /// * path: path to the chromedriver (None = to use system PATH)
     /// * profile: path to save Chrome profile cookies (None = to not save cookies)
@@ -42,8 +42,9 @@ impl SearchEngine for GoogleSearch {
         tab.open(SEARCH_URL).await?;
         
         let status = tab.inject::<bool>(&(str!() + r#"
-            let input = document.querySelector('textarea');
-            if (!input) { return false; }
+            let form = document.querySelector('main form#searchbox_homepage');
+            let input = form.querySelector('input[aria-autocomplete]');
+            if (!form || !input) { return false; }
 
             input.focus();
             input.value = ""# + query + r#"";
@@ -51,14 +52,7 @@ impl SearchEngine for GoogleSearch {
             input.dispatchEvent(new Event('input', { bubbles: true }));
             input.dispatchEvent(new Event('change', { bubbles: true }));
 
-            input.dispatchEvent(new KeyboardEvent('keydown', {
-                bubbles: true,
-                cancelable: true,
-                key: 'Enter',
-                code: 'Enter',
-                charCode: 13,
-                keyCode: 13
-            }));
+            form.submit();
 
             return true;
         "#)).await?;
@@ -74,8 +68,11 @@ impl SearchEngine for GoogleSearch {
         let results = tab.inject::<Vec<String>>(&(str!() + r##"
                 let links = [];
 
-                document.querySelectorAll("#main *[data-rpos] a[href]").forEach(elem => {
-                    let href = elem.getAttribute("href");
+                document.querySelectorAll("body a[href] p").forEach(elem => {
+                    let href = elem.textContent
+                        .replaceAll("&nbsp;", " ")
+                        .replaceAll(/\s+›\s+/g, "/")
+                        .trim();
 
                     if (href && href.startsWith("https://")
                     && !"## + &json::to_string(black_list).unwrap()+ r##".some(site => href.includes(site))) {

@@ -2,55 +2,43 @@ extern crate web_parser;  use web_parser::{ prelude::*, };
 
 #[tokio::main]
 async fn main() -> Result<()> {
-    // _____ WEB SEARCH: _____
+    // _____ WEB SEARCH (feature 'search'): _____
     
     #[cfg(feature = "search")]
     {
         // start search engine:
-        let mut google = GoogleSearch::new(
+        let mut engine = DuckSearch::new(
             Some("bin/chromedriver/chromedriver.exe"),
             Some(macron::path!("$/WebSearch/Profile1").to_str().unwrap()),
             false,
         ).await?;
 
+        println!("Searching results..");
+
         // send search query:
-        let results = google.search(
-            "weather in new york tomorrow",  // query
+        let results = engine.search(
+            "program hello world on Rust language",  // query
             &["support.google.com", "youtube.com"],  // black list
-            2000  // sleep in millis
+            1000  // sleep in millis
         ).await;
 
         // handle search results:
         match results {
-            Ok(results) => {
-                let mut texts = vec![];
+            Ok(cites) => {
+                println!("Reading result pages..");
 
-                for page in &results[..(results.len().clamp(0, 3))] {
-                    let doc = page.read().await?;
-                    let main = doc.select("body")?.unwrap();
-                    
-                    #[derive(Debug)]
-                    #[allow(dead_code)]
-                    struct Result {
-                        url: String,
-                        text: String,
-                    }
-                    
-                    texts.push(Result {
-                        url: page.url.clone(),
-                        text: main.filter_text(
-                            &[ "header", "footer", "style", "script", "noscript", "iframe", "button", "img", "svg" ], // black list
-                        )
-                    });
-                }
+                let contents = cites.read(5, &[
+                    "header", "footer", "style", "script", "noscript",
+                    "iframe", "button", "img", "svg"
+                ]).await?;
 
-                println!("Search results: {texts:#?}");
+                println!("Results: {contents:#?}");
             }
             Err(e) => eprintln!("Search error: {e}")
         }
 
         // stop search engine:
-        google.stop().await?;
+        engine.stop().await?;
     }
 
     /*
