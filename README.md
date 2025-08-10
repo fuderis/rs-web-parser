@@ -28,6 +28,8 @@ use web_parser::prelude::*;
 
 #[tokio::main]
 async fn main() -> Result<()> {
+    // WEB SEARCH:
+
     // select search engine:
     let mut engine = SearchEngine::<Duck>::new(
         Some("bin/chromedriver/chromedriver.exe"),  // path to chromedriver (None = to use global PATH)
@@ -49,10 +51,13 @@ async fn main() -> Result<()> {
         Ok(cites) => {
             println!("Reading result pages..");
 
-            let contents = cites.read(5, &[
-                "header", "footer", "style", "script", "noscript",
-                "iframe", "button", "img", "svg"
-            ]).await?;
+            let contents = cites.read(
+                5,  // cites count to read
+                &[  // tag name black list
+                    "header", "footer", "style", "script", "noscript",
+                    "iframe", "button", "img", "svg"
+                ]
+            ).await?;
 
             println!("Results: {contents:#?}");
         }
@@ -72,7 +77,7 @@ use web_parser::prelude::*;
 
 #[tokio::main]
 async fn main() -> Result<()> {
-    // _____ READ PAGE AS HTML DOCUMENT: _____
+    // READ PAGE AS HTML DOCUMENT:
     
     // read website page:
     let mut doc = Document::read("https://example.com/", User::random()).await?;
@@ -88,12 +93,12 @@ async fn main() -> Result<()> {
         println!("Description: '{}'", descr.text())
     }
 
-    // _____ READ PAGE AS PLAIN TEXT: _______
+    // READ PAGE AS PLAIN TEXT:
 
     let text: String = Document::text("https://example.com/", User::random()).await?;
     println!("Text: {text}");
 
-    // _____ READ PAGE AS JSON: ______________
+    // READ PAGE AS JSON:
 
     let json: serde_json::Value = Document::json("https://example.com/", User::random()).await?.expect("Failed to parse JSON");
     println!("Json: {json}");

@@ -1,4 +1,4 @@
-extern crate web_parser;  use web_parser::{ prelude::*, };
+extern crate web_parser;  use web_parser::prelude::*;
 
 #[tokio::main]
 async fn main() -> Result<()> {
@@ -27,10 +27,13 @@ async fn main() -> Result<()> {
             Ok(cites) => {
                 println!("Reading result pages..");
 
-                let contents = cites.read(5, &[
-                    "header", "footer", "style", "script", "noscript",
-                    "iframe", "button", "img", "svg"
-                ]).await?;
+                let contents = cites.read(
+                    5,  // cites count to read
+                    &[  // tag name black list
+                        "header", "footer", "style", "script", "noscript",
+                        "iframe", "button", "img", "svg"
+                    ]
+                ).await?;
 
                 println!("Results: {contents:#?}");
             }
