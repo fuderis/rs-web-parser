@@ -1,6 +1,5 @@
 pub mod cites;      pub use cites::{ Cites, Cite, Content };
-
-pub mod engine;     pub use engine::{ SearchEngine, SearchParams };
+pub mod engine;     pub use engine::{ SearchEngine, SearchOptions };
 
 pub mod google;     pub use google::Google;
 pub mod bing;       pub use bing::Bing;

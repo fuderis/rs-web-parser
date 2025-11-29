@@ -1,10 +1,10 @@
 use crate::prelude::*;
-use super::{ SearchParams };
+use super::{ SearchOptions };
 
 /// The 'Google' search engine
 pub struct Google;
 
-impl SearchParams for Google {
+impl SearchOptions for Google {
     /// Creates a new instance
     fn new() -> Self {
         Self {}

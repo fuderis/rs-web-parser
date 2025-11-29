@@ -3,7 +3,7 @@ use super::Cites;
 use chromedriver_api::{ Session, Tab };
 
 /// A search engine options
-pub trait SearchParams {
+pub trait SearchOptions {
     /// Creates a new instance
     fn new() -> Self;
     
@@ -18,31 +18,31 @@ pub trait SearchParams {
 }
 
 /// The search engine
-pub struct SearchEngine<P>
+pub struct SearchEngine<O>
 where
-    P: SearchParams
+    O: SearchOptions
 {
-    params: P,
+    params: O,
     session: Arc<TokioMutex<Option<Session>>>,
     tab: Arc<TokioMutex<Tab>>,
 }
 
-impl<P> SearchEngine<P>
+impl<O> SearchEngine<O>
 where
-    P: SearchParams
+    O: SearchOptions
 {
     /// Creates a new search engine session
     /// * path: path to the chromedriver (None = to use system PATH)
     /// * profile: path to save Chrome profile cookies (None = to not save cookies)
     /// * headless: run chromedriver without interface
-    pub async fn new(path: Option<&str>, profile: Option<&str>, headless: bool) -> Result<Self> {
-        let params = P::new();
+    pub async fn new<P: Into<PathBuf>>(chrome_path: P, session_path: Option<PathBuf>, headless: bool) -> Result<Self> {
+        let params = O::new();
         let free_port = std::net::TcpListener::bind("127.0.0.1:0")?.local_addr()?.port().to_string();
 
         let mut session = Session::run(
             &free_port,
-            path,
-            profile,
+            chrome_path.into(),
+            session_path,
             headless
         ).await?;
         

@@ -26,6 +26,13 @@ impl Cites {
         }
     }
 
+    /// Returns results URL's
+    pub fn get_urls(&self) -> Vec<String> {
+        self.cites.iter()
+            .map(|c| c.url.clone())
+            .collect::<Vec<_>>()
+    }
+
     /// Checks URL in black list
     fn in_black_list(url: &str, black_list: &[&str]) -> bool {
         for black in black_list {
@@ -104,5 +111,11 @@ impl Cite {
         drop(tab);
         
         Document::parse(&html)
+    }
+}
+
+impl ::std::fmt::Display for Cite {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        write!(f, "{}", self.url)
     }
 }

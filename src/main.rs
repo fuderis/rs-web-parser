@@ -1,4 +1,6 @@
-extern crate web_parser;  use web_parser::prelude::*;
+use web_parser::prelude::*;
+#[cfg(feature = "search")]
+use macron::path;
 
 #[tokio::main]
 async fn main() -> Result<()> {
@@ -6,10 +8,13 @@ async fn main() -> Result<()> {
     
     #[cfg(feature = "search")]
     {
+        let chrome_path = path!("bin/chromedriver/chromedriver.exe");
+        let session_path = path!("~/ChromeDriver/WebSearchProfile");
+        
         // start search engine:
         let mut engine = SearchEngine::<Duck>::new(
-            Some("bin/chromedriver/chromedriver.exe"),
-            Some(macron::path!("$/WebSearch/Profile1").to_str().unwrap()),
+            chrome_path,
+            Some(session_path),
             false,
         ).await?;
 
@@ -21,12 +26,13 @@ async fn main() -> Result<()> {
             &["support.google.com", "youtube.com"],  // black list
             1000  // sleep in millis
         ).await;
-
+        
         // handle search results:
         match results {
             Ok(cites) => {
-                println!("Reading result pages..");
+                println!("Result cites list: {:#?}", cites.get_urls());
 
+                /* println!("Reading result pages..");
                 let contents = cites.read(
                     5,  // cites count to read
                     &[  // tag name black list
@@ -35,7 +41,7 @@ async fn main() -> Result<()> {
                     ]
                 ).await?;
 
-                println!("Results: {contents:#?}");
+                println!("Results: {contents:#?}"); */
             }
             Err(e) => eprintln!("Search error: {e}")
         }

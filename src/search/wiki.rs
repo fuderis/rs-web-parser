@@ -1,10 +1,10 @@
 use crate::prelude::*;
-use super::{ SearchParams };
+use super::{ SearchOptions };
 
 /// The 'Wikipedia' search engine
 pub struct Wiki;
 
-impl SearchParams for Wiki {
+impl SearchOptions for Wiki {
     /// Creates a new instance
     fn new() -> Self {
         Self {}

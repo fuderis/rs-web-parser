@@ -1,10 +1,10 @@
 use crate::prelude::*;
-use super::{ SearchParams };
+use super::{ SearchOptions };
 
 /// The 'Ecosia' search engine
 pub struct Ecosia;
 
-impl SearchParams for Ecosia {
+impl SearchOptions for Ecosia {
     /// Creates a new instance
     fn new() -> Self {
         Self {}
