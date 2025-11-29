@@ -25,32 +25,38 @@ This tool is well-suited for web scraping and data extraction tasks, offering fl
 > Requires the [chromedriver](https://developer.chrome.com/docs/chromedriver/downloads) tool installed!
 ```rust
 use web_parser::prelude::*;
+use macron::path;
 
 #[tokio::main]
 async fn main() -> Result<()> {
     // WEB SEARCH:
 
-    // select search engine:
+    let chrome_path = path!("bin/chromedriver/chromedriver.exe");
+    let session_path = path!("%/ChromeDriver/WebSearch");
+    
+    // start search engine:
     let mut engine = SearchEngine::<Duck>::new(
-        Some("bin/chromedriver/chromedriver.exe"),  // path to chromedriver (None = to use global PATH)
-        Some(macron::path!("$/WebSearch/Profile1").to_str().unwrap()),  // path to save Chrome session
-        false,  // run in headless mode (without browser interface)
+        chrome_path,
+        Some(session_path),
+        false,
     ).await?;
 
     println!("Searching results..");
 
     // send search query:
     let results = engine.search(
-        "Rust (programming language)",  // search query
+        "Rust (programming language)",  // query
         &["support.google.com", "youtube.com"],  // black list
         1000  // sleep in millis
     ).await;
-
+    
     // handle search results:
     match results {
         Ok(cites) => {
-            println!("Reading result pages..");
+            println!("Result cites list: {:#?}", cites.get_urls());
 
+            /*
+            println!("Reading result pages..");
             let contents = cites.read(
                 5,  // cites count to read
                 &[  // tag name black list
@@ -60,6 +66,7 @@ async fn main() -> Result<()> {
             ).await?;
 
             println!("Results: {contents:#?}");
+            */
         }
         Err(e) => eprintln!("Search error: {e}")
     }

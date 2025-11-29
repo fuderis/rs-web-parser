@@ -9,7 +9,7 @@ async fn main() -> Result<()> {
     #[cfg(feature = "search")]
     {
         let chrome_path = path!("bin/chromedriver/chromedriver.exe");
-        let session_path = path!("~/ChromeDriver/WebSearchProfile");
+        let session_path = path!("%/ChromeDriver/WebSearch");
         
         // start search engine:
         let mut engine = SearchEngine::<Duck>::new(
@@ -32,7 +32,8 @@ async fn main() -> Result<()> {
             Ok(cites) => {
                 println!("Result cites list: {:#?}", cites.get_urls());
 
-                /* println!("Reading result pages..");
+                /*
+                println!("Reading result pages..");
                 let contents = cites.read(
                     5,  // cites count to read
                     &[  // tag name black list
@@ -41,7 +42,8 @@ async fn main() -> Result<()> {
                     ]
                 ).await?;
 
-                println!("Results: {contents:#?}"); */
+                println!("Results: {contents:#?}");
+                */
             }
             Err(e) => eprintln!("Search error: {e}")
         }
